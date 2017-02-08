@@ -3,7 +3,7 @@
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 
-#define LEDPIN            3         // Pin which is connected to LED.
+#define LEDPIN            2         // Pin which is connected to LED.
 
 #define BBT "mqtt.beebotte.com"     // Domain name of Beebotte MQTT service
 #define TOKEN "token:XXXXXXXXXX"    // Set your channel token here
@@ -11,22 +11,19 @@
 #define CHANNEL "mydevice"          // Replace with your device name
 #define LED_RESOURCE "led"
 
-// Enter a MAC address for your controller below.
-// Newer Ethernet shields have a MAC address printed on a sticker on the shield
+// Enter a MAC address of your shield
+// It might be printed on a sticker on the shield
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-
-// Set the static IP address to use if the DHCP fails to assign
-// Feel free to change this according to your network settings
-IPAddress ip(192, 168, 0, 177);
-
-const char* chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 
 EthernetClient ethClient;
 PubSubClient client(ethClient);
 
-char id[17];
-
+// to track delay since last reconnection
 long lastReconnectAttempt = 0;
+
+const char* chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+
+char id[17];
 
 const char * generateID()
 {
@@ -43,18 +40,21 @@ const char * generateID()
 // will be called every time a message is received
 void onMessage(char* topic, byte* payload, unsigned int length) {
 
+  // decode the JSON payload
   StaticJsonBuffer<128> jsonInBuffer;
 
   JsonObject& root = jsonInBuffer.parseObject(payload);
 
-  // Test if parsing succeeds.
+  // Test if parsing succeeded
   if (!root.success()) {
     Serial.println("parseObject() failed");
     return;
   }
 
+  // led resource is a boolean read it accordingly
   bool data = root["data"];
 
+  // Print the received value to serial monitor for debugging
   Serial.print("Received message of length ");
   Serial.print(length);
   Serial.println();
@@ -83,6 +83,9 @@ void setup()
   pinMode(LEDPIN, OUTPUT);
 
   client.setServer(BBT, 1883);
+  // Set the on message callback
+  // onMesage function will be called
+  // every time the client received a message
   client.setCallback(onMessage);
 
   // Open serial communications and wait for port to open:
@@ -94,7 +97,9 @@ void setup()
   // start the Ethernet connection:
   if (Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
-    // try to congifure using IP address instead of DHCP:
+    // try to congifure using static IP address instead of DHCP:
+    // Feel free to change this according to your network settings
+    IPAddress ip(192, 168, 0, 177);
     Ethernet.begin(mac, ip);
   }
   // give the Ethernet shield a second to initialize:
@@ -116,7 +121,6 @@ void loop()
     }
   } else {
     // Client connected
-    delay(500);
     client.loop();
   }
 }
