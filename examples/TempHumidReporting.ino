@@ -19,22 +19,24 @@
 // Initialize DHT sensor.
 DHT dht(DHTPIN, DHTTYPE);
 
-// Enter a MAC address for your controller below.
-// Newer Ethernet shields have a MAC address printed on a sticker on the shield
+// Enter a MAC address of your shield
+// It might be printed on a sticker on the shield
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
-// Set the static IP address to use if the DHCP fails to assign
-// Feel free to change this according to your network settings
-IPAddress ip(192, 168, 0, 177);
+PubSubClient client(ethClient);
+EthernetClient ethClient;
+
+// will store last time LED was updated
+unsigned long previousMillis = 0;
+
+// interval for sending DHT temp and humidity to Beebotte
+const long interval = 10000;
+// to track delay since last reconnection
+unsigned long lastReconnectAttempt = 0;
 
 const char* chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 
-EthernetClient ethClient;
-PubSubClient client(ethClient);
-
 char id[17]; // Identifier for the MQTT connection - will set it randomly
-
-long lastReconnectAttempt = 0;
 
 const char * generateID()
 {
@@ -107,7 +109,9 @@ void setup()
   // start the Ethernet connection:
   if (Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
-    // try to congifure using IP address instead of DHCP:
+    // try to congifure using static IP address instead of DHCP:
+    // Feel free to change this according to your network settings
+    IPAddress ip(192, 168, 0, 177);
     Ethernet.begin(mac, ip);
   }
 
@@ -121,7 +125,7 @@ void setup()
 void loop()
 {
   if (!client.connected()) {
-    long now = millis();
+    unsigned long now = millis();
     if (now - lastReconnectAttempt > 5000) {
       lastReconnectAttempt = now;
       // Attempt to reconnect
@@ -131,10 +135,16 @@ void loop()
     }
   } else {
     // Client connected
+
     // read sensor data every 10 seconds
     // and publish values to Beebotte
-    delay(10000);
-    readSensorData();
+    unsigned long currentMillis = millis();
+    if (currentMillis - lestReadingMillis >= interval) {
+      // save the last time we read the sensor data
+      lestReadingMillis = currentMillis;
+
+      readSensorData();
+    }
     client.loop();
   }
 }
