@@ -5,7 +5,7 @@
 
 
 #define BBT "mqtt.beebotte.com" // Domain name of Beebotte MQTT service
-#define Token "token:1486501471527_xxxxxxx" // Set your channel token here
+#define Token "token:xxxxxxxxxxx" // Set your channel token here
 #define Channel "Arduino" // Replace with your channel name
 #define CoResource "co" //Replace with your resource name
 #define OverLimitResource "overLimit" //Replace with your resource name
@@ -46,7 +46,7 @@ void setup() {
   // start the Ethernet connection:  
   if (Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
-    // try to congifure using IP address instead of DHCP:
+    
      Ethernet.begin(mac, ip, gateway, subnet);
   }
   
