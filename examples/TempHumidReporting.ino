@@ -26,8 +26,8 @@ byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 PubSubClient client(ethClient);
 EthernetClient ethClient;
 
-// will store last time LED was updated
-unsigned long previousMillis = 0;
+// will store last time DHT sensor data was read
+unsigned long lastReadingMillis = 0;
 
 // interval for sending DHT temp and humidity to Beebotte
 const long interval = 10000;
@@ -139,9 +139,9 @@ void loop()
     // read sensor data every 10 seconds
     // and publish values to Beebotte
     unsigned long currentMillis = millis();
-    if (currentMillis - lestReadingMillis >= interval) {
+    if (currentMillis - lastReadingMillis >= interval) {
       // save the last time we read the sensor data
-      lestReadingMillis = currentMillis;
+      lastReadingMillis = currentMillis;
 
       readSensorData();
     }
