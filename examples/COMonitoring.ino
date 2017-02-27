@@ -17,6 +17,13 @@ PubSubClient client(ethClient);
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 long lastReconnectAttempt = 0;
+
+// interval for sending CO readings to Beebotte
+const long interval = 10000; // 10 seconds
+
+// last time CO sensor data were sent to Beebotte
+unsigned long lastReadingMillis = 0;
+
 const char* chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 char id[17];
 
@@ -139,10 +146,17 @@ void loop()
     }
   } else {
     // Client connected
+
     // read sensor data every 10 seconds
     // and publish values to Beebotte
-    delay(10000);
-    readSensorData();
+    unsigned long currentMillis = millis();
+    if (currentMillis - lastReadingMillis >= interval) {
+      // save the last time we read the sensor data
+      lastReadingMillis = currentMillis;
+
+      readSensorData();
+    }
+
     client.loop();
   }
 }
