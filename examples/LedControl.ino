@@ -21,7 +21,7 @@ PubSubClient client(ethClient);
 // to track delay since last reconnection
 long lastReconnectAttempt = 0;
 
-const char* chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+const char chars[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 
 char id[17];
 

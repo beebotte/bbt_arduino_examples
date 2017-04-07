@@ -9,7 +9,7 @@
 #define Channel "Arduino" // Replace with your channel name
 #define CoResource "co" //Replace with your resource name
 #define OverLimitResource "overLimit" //Replace with your resource name
-#define Write true 
+#define Write true
 
 
 EthernetClient ethClient;
@@ -24,7 +24,7 @@ const long interval = 10000; // 10 seconds
 // last time CO sensor data were sent to Beebotte
 unsigned long lastReadingMillis = 0;
 
-const char* chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+const char chars[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 char id[17];
 
 // Set the static IP address to use if the DHCP fails to assign
@@ -34,29 +34,29 @@ IPAddress gateway(192,168,1,1);
 IPAddress subnet(255,255,255,0);
 
 const int aOutPin=0; //the AOUT pin of the CO sensor goes into analog pin A0 of the arduino
-const int dOutPin=8; //the DOUT pin of the CO sensor goes into digital pin D8 of the arduino 
+const int dOutPin=8; //the DOUT pin of the CO sensor goes into digital pin D8 of the arduino
 const int ledPin=13; //the anode of the LED connects to digital pin D13 of the arduino
 
 int rawValue;
 int overLimit;
 
-void setup() { 
+void setup() {
   Serial.begin(9600);//Sets the data rate in bits per second (baud) for serial data transmission
-  pinMode(dOutPin, INPUT);//sets the pin as an input to the arduino 
+  pinMode(dOutPin, INPUT);//sets the pin as an input to the arduino
   pinMode(ledPin, OUTPUT);//sets the pin as an output of the arduino
   client.setServer(BBT, 1883);
   // Open serial communications and wait for port to open:
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
-  
-  // start the Ethernet connection:  
+
+  // start the Ethernet connection:
   if (Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
-    
+
      Ethernet.begin(mac, ip, gateway, subnet);
   }
-  
+
   // give the Ethernet shield a second to initialize:
   delay(1000);
   Serial.println("connecting...");
@@ -89,23 +89,23 @@ void publish(const char* resource, float data, bool persist)
 
 void readSensorData()
 {
-  rawValue= analogRead(aOutPin);//reads the analog value from the CO sensor's AOUT pin  
+  rawValue= analogRead(aOutPin);//reads the analog value from the CO sensor's AOUT pin
   overLimit = digitalRead(dOutPin);//reads the digital value from the CO sensor's DOUT pin
-  
-  if (!isnan(rawValue )) {    
-    publish(CoResource, rawValue, Write);    
+
+  if (!isnan(rawValue )) {
+    publish(CoResource, rawValue, Write);
   }
-    
-      
+
+
     if (overLimit== HIGH){
-      digitalWrite(ledPin, HIGH);//if limit has been reached, LED turns on 
-      publish(OverLimitResource, true, Write);  
+      digitalWrite(ledPin, HIGH);//if limit has been reached, LED turns on
+      publish(OverLimitResource, true, Write);
     }
     else{
       digitalWrite(ledPin, LOW);//if threshold not reached, LED remains off
-      publish(OverLimitResource, false, Write);  
+      publish(OverLimitResource, false, Write);
       }
-  }  
+  }
 
 
 const char * generateID()
@@ -160,5 +160,3 @@ void loop()
     client.loop();
   }
 }
-
-

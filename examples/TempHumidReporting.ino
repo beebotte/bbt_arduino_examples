@@ -34,7 +34,7 @@ const long interval = 10000;
 // to track delay since last reconnection
 unsigned long lastReconnectAttempt = 0;
 
-const char* chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+const char chars[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 
 char id[17]; // Identifier for the MQTT connection - will set it randomly
 
